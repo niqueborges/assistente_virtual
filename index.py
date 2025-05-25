@@ -4,6 +4,7 @@ import speech_recognition as sr
 # Importa a biblioteca de expressões regulares
 import re
 
+
 while(True):
 
     # Cria um objeto reconhecedor, responsável por processar o áudio
