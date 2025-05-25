@@ -39,6 +39,10 @@ while(True):
 
                 print("Seu nome é "+nome)
 
-        # Caso não consiga entender o áudio, exibe uma mensagem de erro
+        print("Voce falou: "+frase)
+
+        
+
         except sr.UnknownValueError:
-            print("Desculpe, não consegui entender o que você disse.")
+
+            print("ops, algo deu errado.")
