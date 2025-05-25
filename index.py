@@ -20,29 +20,20 @@ while(True):
         audio = mic.listen(source)
         
         try:
+            frase = mic.recognize_google(audio, language='pt-BR')
 
-            frase = mic.recognize_google(audio,language='pt-BR')
-
-
-
-            if (re.search(r'\b' + "ajudar" + r'\b',format(frase))):
-
+            if re.search(r'\bajudar\b', frase):
                 print("Algo relacionado a ajuda.")
 
+            elif re.search(r'\bmeu nome é\b', frase):
+                t = re.search(r'meu nome é (.*)', frase)
+                if t is not None:
+                    nome = t.group(1)
+                    print("Seu nome é " + nome)
+                else:
+                    print("Não consegui identificar o nome.")
 
-
-            elif (re.search(r'\b' + "meu nome é " + r'\b',format(frase))):
-
-                t = re.search('meu nome é (.*)',format(frase))
-
-                nome = t.group(1)
-
-                print("Seu nome é "+nome)
-
-        print("Voce falou: "+frase)
-
-        
+            print("Voce falou: " + frase)
 
         except sr.UnknownValueError:
-
             print("ops, algo deu errado.")
