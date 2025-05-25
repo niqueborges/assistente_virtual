@@ -1,65 +1,63 @@
-# Importa a biblioteca para reconhecimento de voz
 import speech_recognition as sr
-
-# Importa a biblioteca de expressões regulares
 import re
-
-# Importa a biblioteca para síntese de voz (fala)
 import pyttsx3
 
-# Variável para armazenar o nome dito pelo usuário
-nome = ""
+def iniciar_assistente():
+    # Inicializa o motor de voz apenas uma vez
+    engine = pyttsx3.init()
+    engine.setProperty('voice', "com.apple.speech.synthesis.voice.luciana")  # Altere se estiver em outro sistema
 
-# Inicia um loop infinito para escutar continuamente
-while True:
-    # Cria um reconhecedor de áudio
-    mic = sr.Recognizer()
+    # Variável global para armazenar o nome
+    nome = ""
 
-    # Usa o microfone como fonte de entrada
-    with sr.Microphone() as source:
-        # Inicializa o mecanismo de fala
-        engine = pyttsx3.init()
+    # Inicia o loop de escuta
+    while True:
+        reconhecedor = sr.Recognizer()
 
-        # Define a voz que será usada (neste caso, voz "Luciana" no macOS)
-        engine.setProperty('voice', "com.apple.speech.synthesis.voice.luciana")
+        with sr.Microphone() as fonte:
+            reconhecedor.adjust_for_ambient_noise(fonte)
+            print("Vamos começar, fale alguma coisa...")
 
-        # Ajusta para ignorar ruídos do ambiente
-        mic.adjust_for_ambient_noise(source)
+            # Captura o áudio do usuário
+            audio = reconhecedor.listen(fonte)
 
-        # Informa que o programa está pronto para ouvir
-        print("Vamos começar, fale alguma coisa...")
+            try:
+                # Converte o áudio para texto (em português)
+                frase = reconhecedor.recognize_google(audio, language='pt-BR')
 
-        # Escuta o que foi falado no microfone
-        audio = mic.listen(source)
+                # Verifica se o usuário quer ajuda
+                if re.search(r'\bajudar\b', frase, re.IGNORECASE):
+                    engine.say("Ajuda")
+                    engine.runAndWait()
+                    print("Algo relacionado a ajuda.")
 
-        try:
-            # Converte o áudio para texto usando o Google (idioma português)
-            frase = mic.recognize_google(audio, language='pt-BR')
+                # Verifica se o usuário disse seu nome
+                elif re.search(r'\bmeu nome é\b', frase, re.IGNORECASE):
+                    t = re.search(r'meu nome é (.*)', frase, re.IGNORECASE)
+                    if t:
+                        nome = t.group(1)
+                        print("Seu nome é " + nome)
+                        engine.say("Nome falado foi " + nome)
+                        engine.runAndWait()
 
-            # Verifica se a palavra "ajudar" foi dita
-            if re.search(r'\bajudar\b', frase):
-                engine.say("Ajuda")
-                engine.runAndWait()
-                print("Algo relacionado a ajuda.")
+                # Comando para encerrar o programa
+                elif re.search(r'\bsair\b', frase, re.IGNORECASE):
+                    print("Encerrando o assistente...")
+                    engine.say("Até logo!")
+                    engine.runAndWait()
+                    break
 
-            # Verifica se a frase contém "meu nome é"
-            elif re.search(r'\bmeu nome é\b', frase):
-                # Captura o nome dito após "meu nome é"
-                t = re.search(r'meu nome é (.*)', frase)
-                nome = t.group(1)
+                # Mostra a frase dita
+                print("Você falou: " + frase)
 
-                print("Seu nome é " + nome)
+            except sr.UnknownValueError:
+                print("Ops, não consegui entender o que você disse.")
+            except Exception as e:
+                print(f"Ocorreu um erro: {e}")
 
-                # Fala o nome de volta para o usuário
-                engine.say("Nome falado foi " + nome)
-                engine.runAndWait()
+# Executa a função principal
+iniciar_assistente()
 
-            # Mostra o que o usuário falou
-            print("Você falou: " + frase)
-
-        # Caso o áudio não possa ser entendido, exibe uma mensagem de erro
-        except sr.UnknownValueError:
-            print("Ops, algo deu errado.")
 
 
 
